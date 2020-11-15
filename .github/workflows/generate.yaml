@@ -1,0 +1,22 @@
+name: Generate
+on:
+  schedule:
+    - cron: "0 0 * * *" # end of every day
+
+jobs:
+  generate:
+    name: Generate Domain List
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Execute script
+        run: ./generate.sh > domains.txt
+      - name: Commit list
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "noreply@github.com"
+          git add domains.txt
+          if [ ! $(git status --porcelain | tee /dev/fd/2 | wc -c) -eq 0 ]; then
+            git commit -m "generated domains"
+            git push
+          fi
